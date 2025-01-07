@@ -1,8 +1,8 @@
 node_modules/
 package-lock.json
-tsconfig.json
-eslint.config.ts
-bump.config.ts
+tsup.config.js
+eslint.config.js
+bump.config.js
 .editorconfig
 .vscode/
 src/

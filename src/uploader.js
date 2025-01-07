@@ -1,29 +1,8 @@
-import { S3Client, S3ClientConfig, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
-import { IImgInfo, IPicGo } from 'picgo'
-import { IR2UserConfig } from './config'
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { extractInfo, generatorURL, formatPath } from './utils'
 
-
-export interface IUploadResult {
-  index: number,
-  key: string,
-  url?: string
-  versionId?: string
-  eTag?: string
-  error?: Error
-}
-
-export interface IRemoveResult {
-  index: number
-  key: string
-  versionId?: string
-  error?: Error
-}
-
-
-const createS3Client = (config: IR2UserConfig) => {
-  const clientConfig: S3ClientConfig = {
+const createS3Client = (config) => {
+  const clientConfig = {
     region: config.region || 'auto',
     endpoint: config.endpoint,
     credentials: {
@@ -35,21 +14,12 @@ const createS3Client = (config: IR2UserConfig) => {
   return new S3Client(clientConfig)
 }
 
-
-interface taskConfig {
-  ctx: IPicGo
-  client: S3Client
-  userConfig: IR2UserConfig
-  item: IImgInfo
-  index: number
-}
-
-const createUploadTask = async (config: taskConfig): Promise<IUploadResult> => {
+const createUploadTask = async (config) => {
   const key = formatPath(config.userConfig, config.item)
   const bucketName = config.userConfig.bucketName
   const ctx = config.ctx
 
-  const result: IUploadResult = {
+  const result = {
     index: config.index,
     key
   }
@@ -59,12 +29,13 @@ const createUploadTask = async (config: taskConfig): Promise<IUploadResult> => {
     return result
   }
 
-  let body: Buffer
-  let contentType: string
+  let body
+  let contentType
 
   try {
     ({ body, contentType } = await extractInfo(config.item))
-  } catch (err) {
+  }
+  catch (err) {
     result.error = new Error(`Failed to extract ${config.item.fileName} image info: ${err instanceof Error ? err.message : String(err)}`)
     return result
   }
@@ -82,7 +53,8 @@ const createUploadTask = async (config: taskConfig): Promise<IUploadResult> => {
     result.versionId = output.VersionId
     result.eTag = output.ETag
     ctx.log.success(`上传 "${config.item.fileName}" 成功: ${result.url}`)
-  } catch (err) {
+  }
+  catch (err) {
     result.error = new Error(
       `上传 "${config.item.fileName}" 失败: ${err instanceof Error ? err.message : String(err)}`
     )
@@ -90,8 +62,15 @@ const createUploadTask = async (config: taskConfig): Promise<IUploadResult> => {
   return result
 }
 
-
-const createRemoveTask = async (config: taskConfig): Promise<IRemoveResult> => {
+/**
+ * @param {Object} config
+ * @param {PicGo} config.ctx
+ * @param {Object} config.userConfig
+ * @param {Object} config.item
+ * @param {number} config.index
+ * @param {S3Client} config.client
+ */
+const createRemoveTask = async (config) => {
   const ctx = config.ctx
   const file = config.item
   const bucketName = config.userConfig.bucketName
@@ -105,7 +84,7 @@ const createRemoveTask = async (config: taskConfig): Promise<IRemoveResult> => {
     pathname = pathname.slice(1)
   }
 
-  let result: IRemoveResult = {
+  let result = {
     index: config.index,
     key: pathname
   }
@@ -118,16 +97,16 @@ const createRemoveTask = async (config: taskConfig): Promise<IRemoveResult> => {
   try {
     const output = await config.client.send(command)
     result.versionId = output.VersionId
-    ctx.log.success(`删除 "${config.item.fileName}" 成功`)
-  } catch (err) {
+    ctx.log.success(`删除 "${pathname}" 成功`)
+  }
+  catch (err) {
     result.error = new Error(
-      `删除 "${config.item.fileName}" 失败: ${err instanceof Error ? err.message : String(err)}`
+      `删除 "${pathname}" 失败: ${err instanceof Error ? err.message : String(err)}`
     )
   }
 
   return result
 }
-
 
 export default {
   createS3Client,

@@ -1,16 +1,14 @@
-import { IPicGo, IPluginConfig, IImgInfo } from 'picgo'
 import { getPluginConfig, loadUserConfig } from './config'
-import uploader, { IUploadResult } from './uploader'
+import uploader from './uploader'
 
 const pluginName = 'r2'
 
-const upload = async (ctx: IPicGo) => {
+const upload = async (ctx) => {
   const userConfig = loadUserConfig(ctx)
   const client = uploader.createS3Client(userConfig)
   const output = ctx.output
 
   const tasks = output.map((item, idx) => {
-
     return uploader.createUploadTask({
       ctx,
       client,
@@ -20,12 +18,13 @@ const upload = async (ctx: IPicGo) => {
     })
   })
 
-  let results: IUploadResult[]
+  let results = []
 
   try {
-    results = await Promise.all(tasks)
-  } catch (err) {
-    ctx.log.error("上传失败，请检查网络连接和配置")
+     results = await Promise.all(tasks)
+  }
+  catch (err) {
+    ctx.log.error('上传失败，请检查网络连接和配置')
     throw err
   }
 
@@ -36,7 +35,8 @@ const upload = async (ctx: IPicGo) => {
     output[index].uploadPath = key
     if (error) {
       output[index].error = error
-    } else {
+    }
+    else {
       output[index].url = url
       output[index].imgUrl = url
     }
@@ -45,7 +45,8 @@ const upload = async (ctx: IPicGo) => {
   return ctx
 }
 
-const remove = async (ctx: IPicGo, files, guiApi) => {
+// eslint-disable-next-line no-unused-vars
+const remove = async (ctx, files, guiApi) => {
   const userConfig = loadUserConfig(ctx)
   const client = uploader.createS3Client(userConfig)
 
@@ -62,29 +63,25 @@ const remove = async (ctx: IPicGo, files, guiApi) => {
     })
   })
 
-  let results: IUploadResult[]
-
   try {
-    results = await Promise.all(tasks)
-  } catch (err) {
-    ctx.log.error("删除失败，请检查网络连接和配置")
+    return await Promise.all(tasks)
+  }
+  catch (err) {
+    ctx.log.error('删除失败，请检查网络连接和配置')
     throw err
   }
-  return results
 }
 
-
-const config = (ctx: IPicGo): IPluginConfig[] => {
+const config = (ctx) => {
   return getPluginConfig(ctx)
 }
 
-
-export = (ctx: IPicGo) => {
-  const register = (ctx: IPicGo) => {
+module.exports = (ctx) => {
+  const register = () => {
     ctx.helper.uploader.register(pluginName, {
       handle: upload,
       config,
-      name: 'Cloudflare R2',
+      name: 'Cloudflare R2'
     })
 
     ctx.on('remove', (files, guiApi) => {
