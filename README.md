@@ -3,5 +3,5 @@
 </p>
 
 <p align="center">
-picgo for cloudflare R2 storage
+<samp>PicGo plugin for <code>Cloudflare R2</code> storage.</samp>
 </p>
