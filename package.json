@@ -22,7 +22,7 @@
     "dev": "tsup --watch",
     "prepack": "npm run build",
     "release": "bumpp && npm publish",
-    "lint": "eslint --flag unstable_ts_config .",
+    "lint": "eslint .",
     "lint:inspect": "eslint --inspect-config"
   },
   "dependencies": {
