@@ -1,6 +1,6 @@
 {
   "name": "picgo-plugin-r2",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "picgo plugin for cloudflare R2",
   "type": "commonjs",
   "keywords": [

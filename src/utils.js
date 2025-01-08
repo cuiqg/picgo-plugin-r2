@@ -6,11 +6,13 @@ export const formatPath = (userConfig, item) => {
   const { fileName, extname, buffer } = item
   const { subFolder, renameFile } = userConfig
 
+  const pathPrefix = subFolder?.replace(new RegExp("^\/"),'').toString()
+
   if (renameFile) {
     const fileMD5 = crypto.createHash("md5").update(buffer).digest("hex")
-    return posix.join(subFolder, `${fileMD5}${extname}`)
+    return  `${pathPrefix}${fileMD5}${extname}`
   } else {
-    return posix.join(subFolder, fileName)
+    return `${pathPrefix}${fileName}`
   }
 }
 
