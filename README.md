@@ -1,5 +1,5 @@
 <p align="center">
-![Picgo-plugin-R2](/logo.png)
+<img src="./logo.png" width="180" alt="picgo-plugin-r2"/>
 </p>
 
 <p align="center">
