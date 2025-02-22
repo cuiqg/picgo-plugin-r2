@@ -2,3 +2,6 @@ tsup.config.js
 eslint.config.js
 bump.config.js
 .editorconfig
+jsconfig.json
+
+src/
